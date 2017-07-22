@@ -1,0 +1,6 @@
+body {font-family:trebuchet ms, tahoma, sans-serif; font-size:13px}
+h1 {font-size:21px; padding:20px 0; color:#900000}
+
+
+.col-fright {float:right; width:50%; padding:20px 1%; box-sizing:border-box;}
+.col-fleft {float:left; width:50%; padding:20px 1%; box-sizing:border-box;}

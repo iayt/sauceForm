@@ -1,0 +1,22 @@
+.formArea {margin:0; text-align:left}
+.formArea form div{margin:0 0 10px 0}
+.formArea div > span{margin-bottom:5px;display:inline-block; width:140px; vertical-align:top; padding:5px 0 0 0;}
+.formArea div span{font-size:15px}
+.formArea div span i{color:#900}
+.formArea div span.info{font-size:9px;color:#999}
+.formArea input,.formArea select,.formArea textarea,.formArea button{outline:none}
+.formArea div input[type=text],.formArea div input[type=password]{border:1px solid #ddd;padding:5px 5px;width:200px;color:#666;font-size:13px;margin:0 0 3px 0}
+.formArea div select{border:1px solid #ddd;padding:5px 5px;width:210px;color:#666;font-size:13px;margin:3px 5px 3px 0}
+.formArea div select option[value=""] {color:#900000;font-weight:bold}
+.formArea div input[type=checkbox],
+.formArea div input[type=radio] {cursor:pointer; vertical-align:middle;}
+.formArea div textarea{border:1px solid #ddd;padding:5px 5px;width:400px;height:120px;color:#666;font-size:13px;margin:3px 5px 3px 0; resize: none;}
+.formArea span.ikili{width:215px;display:inline-block}
+.formArea button{width:105px;height:32px;margin-left:150px;line-height:33px;display:inline-block;background:#900;color:#fff;font-weight:bold;text-align:center; border-radius:3px; cursor:pointer}
+.formArea button:hover{background:#700}
+.formArea .altLink1 {color:#732a7c}
+.formArea .altLink1:hover {text-decoration:underline}
+.formArea div .ks {width:92px !important}
+.formArea div .kss {width:63px !important}
+
+.err {border:1px solid red !important}
