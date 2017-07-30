@@ -6,6 +6,77 @@
 	
 	<link rel="stylesheet" type="text/css" href="css/reset.css">
 	<link rel="stylesheet" type="text/css" href="css/style.css">
+
+</head>
+<body>
+	
+
+	<div class="col-fleft">
+		<div class="uyelikFormu">
+			<h1>Üyelik Formu</h1>
+			<div class="formArea">
+				<form id="uyelikForm" method="post" action="ajax.php" enctype="multipart/form-data">
+
+					<div><span><b>*</b> Adı </span>: 			<input type="text" name="ad" class="must"></div>
+					<div><span><b>*</b> Soyadı </span>: 		<input type="text" name="soyad" class="must"></div>
+					<br>
+
+					<div><span><b>*</b> E-Posta </span>: 		<input type="text" name="email" class="must"></div>
+					<div><span><b>*</b> E-Posta Doğrula</span>: <input type="text" name="email2" class="must"></div>
+					<br>
+
+					<div><span><b>*</b> Kullanıcı Adı </span>: 	<input type="text" name="kadi" class="must"></div>
+					<br>
+
+					<div><span><b>*</b> Şifre </span>: 			<input type="password" name="pass1" class="must"></div>
+					<div><span><b>*</b> Şifre Tekrarı </span>: 	<input type="password" name="pass2" class="must"></div>
+					<br>
+
+					<div><span><b>*</b> Cinsiyet </span>: 		
+																<label for="g1"><input type="radio" name="gender" value="man" id="g1"> Erkek</label>
+																<label for="g2"><input type="radio" name="gender" value="woman" id="g2"> Bayan</label>
+					</div>
+					<br>	
+
+					<div><span><b>*</b> Adres </span>: 			<textarea name="adres" class="must"></textarea></div>
+					<div><span><b>*</b> İl </span>: 			<select id="il" name="il" class="must">
+																	<option value="">İl Seçiniz</option>
+																	<option value="6">ANKARA</option>
+																	<option value="34">İSTANBUL</option>
+																	<option value="35">İZMİR</option>
+																	<option value="55">SAMSUN</option>
+																	<option value="61">TRABZON</option>
+																</select>
+					</div><br>
+
+					<div><span><b>*</b>  </span><label><input type="checkbox" name="contract" class="must"></i> Lütfen <a href="http://">sözleşmeyi</a> okuyarak onaylayınız.</label></div>
+					
+					<div><button type="submit">GÖNDER</button></div>
+									
+
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-fright">
+		<div class="uyelikGirisi">
+			<h1>Üye Girişi</h1>
+			<div class="formArea">
+				<form id="girisForm" method="post" action="ajax.php">
+
+					<div><span><b>*</b> E-Posta </span>: 		<input type="text" name="email" class="must"></div>
+					<div><span><b>*</b> Şifre </span>: 			<input type="password" name="pass" class="must"></div>
+					
+					<div><button type="submit">GİRİŞ</button></div>
+									
+				</form>
+			</div>
+		</div>
+	</div>
+
+
+
 	<script src="js/jquery-1.11.1.min.js" type="text/javascript"></script>
 
 	<!-- sauceNtfy //You must add sauceNtfy plugin => https://github.com/iayt/sauceNtfy.git -->
@@ -16,73 +87,35 @@
 	<link rel="stylesheet" type="text/css" href="../sauceForm.css">
 	<script src="../sauceForm.js" type="text/javascript"></script>
 
-</head>
-<body>
-	
+	<script type="text/javascript">
+		$(document).ready(function(){
 
-<div class="col-fleft">
-	<div class="uyelikFormu">
-		<h1>Üyelik Formu</h1>
-		<div class="formArea">
-			<form id="uyelikForm" method="post" action="ajax.php" enctype="multipart/form-data">
+			$("#uyelikForm").sauceForm({method:'post'});
+			$("#girisForm").sauceForm({method:'post'});
 
-				<div><span><b>*</b> Adı </span>: 			<input type="text" name="ad" class="must"></div>
-				<div><span><b>*</b> Soyadı </span>: 		<input type="text" name="soyad" class="must"></div>
-				<br>
 
-				<div><span><b>*</b> E-Posta </span>: 		<input type="text" name="email" class="must"></div>
-				<div><span><b>*</b> E-Posta Doğrula</span>: <input type="text" name="email2" class="must"></div>
-				<br>
-
-				<div><span><b>*</b> Kullanıcı Adı </span>: 	<input type="text" name="kadi" class="must"></div>
-				<br>
-
-				<div><span><b>*</b> Şifre </span>: 			<input type="text" name="pass1" class="must"></div>
-				<div><span><b>*</b> Şifre Tekrarı </span>: 	<input type="text" name="pass2" class="must"></div>
-				<br>
-
-				<div><span><b>*</b> Cinsiyet </span>: 		
-															<label for="g1"><input type="radio" name="gender" value="man" id="g1"> Erkek</label>
-															<label for="g2"><input type="radio" name="gender" value="woman" id="g2"> Bayan</label>
-				</div>
-				<br>	
-
-				<div><span><b>*</b> Adres </span>: 			<textarea name="adres" class="must"></textarea></div>
-				<div><span><b>*</b> İl </span>: 			<select id="il" name="il" class="must">
-																<option value="">İl Seçiniz</option>
-																<option value="6">ANKARA</option>
-																<option value="34">İSTANBUL</option>
-																<option value="35">İZMİR</option>
-																<option value="55">SAMSUN</option>
-																<option value="61">TRABZON</option>
-															</select>
-				</div><br>
-
-				<div><span><b>*</b>  </span><label><input type="checkbox" name="contract" class="must"></i> Lütfen <a href="http://">sözleşmeyi</a> okuyarak onaylayınız.</label></div>
+			/*
+				$("#form_iletisim button[type=submit]").click(function(e){e.preventDefault();validateForm('form_iletisim')}); 
+				$("#frmEbulten button[type=submit]").click(function(e){e.preventDefault();validateForm('frmEbulten')}); 
 				
-				<div><button type="submit">GÖNDER</button></div>
-								
+				$("form").each(function(index){
+					console.log(index);
+					console.log( $(this).attr("data-ia") );
+				});
 
-			</form>
-		</div>
-	</div>
-</div>
+				$("#otelProfili button[type=submit]").click(function(e){e.preventDefault();validateForm('otelProfili')}); 		// Otel Profili
+				$("#iletisimForm button[type=submit]").click(function(e){e.preventDefault();validateForm('iletisimForm');}); 	// iletisim
 
-<div class="col-fright">
-	<div class="uyelikGirisi">
-		<h1>Üye Girişi</h1>
-		<div class="formArea">
-			<form id="girisForm" method="post" action="ajax.php">
+				$(".sorunBildir").click(function(){dataPost('form=sorunbildir&id='+$(this).attr("rel"))}); //Katalog Ekle Form
 
-				<div><span><b>*</b> E-Posta </span>: 		<input type="text" name="email" class="must"></div>
-				<div><span><b>*</b> Şifre </span>: 			<input type="text" name="pass" class="must"></div>
-				
-				<div><button type="submit">GİRİŞ</button></div>
-								
-			</form>
-		</div>
-	</div>
-</div>
+				jQuery(function($){
+					$("input[name=tel]").mask("(999)-999-99-99");
+				});
+			*/
+			
+			
+		});
+	</script>
 
 </body>
 </html>
