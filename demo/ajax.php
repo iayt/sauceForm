@@ -9,7 +9,7 @@
     }
     if (isset($_POST['form']) && $_POST['form']=='girisForm'){
 
-        die('false|Giriş Başarısız.');
+        die('true|Giriş Başarılı.');
 
     }
     else {

@@ -27,7 +27,7 @@ $.fn.sauceForm=function(config){
 			url: 		domID.attr("action"),
 			data: 		domID.serialize(),
 			beforeSend: function(){},
-			error: 		function(){domID.sauceNtfy({type:'error',text:gonderilemedi});},
+			error: 		function(){domID.sauceNtfy({text:errSend});},
 			success: 	function(response){	response=response.split("|");
 				switch (response[0]){
 					case 'true': 	// true
@@ -35,11 +35,11 @@ $.fn.sauceForm=function(config){
 							domID.sauceNtfy({type:'true',text:response[1]});
 							domID.hide(); 											// Form gönderildikten sonra form alanı siliniyor.
 						}
-						else		{ domID.sauceNtfy({type:'true',text:gonderildi}); }
+						else		{ domID.sauceNtfy({type:'true',text:trueSend}); }
 						$('.'+id+' input, .'+id+' textarea, .'+id+' select').not("input[type=hidden]").val('');		// form başarılı gönderildikten sonra input,textarea,select alanlarını boşaltıyor.
 						break;
 					case 'false': 	// false
-						if(response[1])	{ domID.sauceNtfy({type:'error',text:response[1]});}
+						if(response[1])	{ domID.sauceNtfy({text:response[1]});}
 						break;
 					case 'refresh':	// refresh
 						var msj='Sayfa yönleniyor...';
@@ -52,7 +52,7 @@ $.fn.sauceForm=function(config){
 						}
 						break;
 					default:
-						domID.sauceNtfy({type:'error',text:response});
+						domID.sauceNtfy({text:response});
 				}
 				
 				domID.find('button').show(); // button show
@@ -72,18 +72,18 @@ $.fn.sauceForm=function(config){
 
 		// lang 
 		if( config.lang !== 'tr' ){
-				var doldurun 		= '- Please Fill in all fields.<br>';
-				var epostadegil		= '- Please Enter a valid email address.<br>';
-				var gonderildi		= '- Form has been sent successfully.<br />Thank you...';
-				var gonderilemedi	= '- ';
+				var errNull 		= '- Please Fill in all fields.<br>';
+				var errNotMail		= '- Please Enter a valid email address.<br>';
+				var trueSend		= '- Form has been sent successfully.<br />Thank you...';
+				var errSend			= '- ';
 				var errContract		= '- <br>';
 				var errPass			= '- Şifre ve şifre tekrarı alanları aynı olmalıdır.<br>';
 		}
 		else {
-				var doldurun 		= '- Lütfen tüm alanları doldurunuz.<br>';
-				var epostadegil		= '- Lütfen geçerli bir E-Mail adresi yazınız.<br>';
-				var gonderildi		= '- Form başarıyla gönderilmiştir.<br />Teşekkür ederiz...';
-				var gonderilemedi	= '- Form gönderilemedi.<br> Lütfen daha sonra tekrar deneyin...';
+				var errNull 		= '- Lütfen tüm alanları doldurunuz.<br>';
+				var errNotMail		= '- Lütfen geçerli bir E-Mail adresi yazınız.<br>';
+				var trueSend		= '- Form başarıyla gönderilmiştir.<br />Teşekkür ederiz...';
+				var errSend			= '- Form gönderilemedi.<br> Lütfen daha sonra tekrar deneyin...';
 				var errContract		= '- Lütfen sözleşmeyi okuyup, onaylayınız.<br>';
 				var errPass			= '- Şifre ve şifre tekrarı alanları aynı olmalıdır.<br>';
 		}
@@ -94,41 +94,45 @@ $.fn.sauceForm=function(config){
 		// empty area control
 		var zbos=0;
 		$(txtID+' .must').each(function(){if (!$(this).val()){$(this).addClass("err"); zbos++;}}); 
-		if(zbos != 0 ){hata=hata+doldurun;}
+		if(zbos != 0 ){hata=hata+errNull;}
 
 
 		// email check
-		if($(txtID+' input[name=email]').length > 0 ){
+		var domMail = $(txtID+' input[name=email]');
+		if(domMail.length > 0 ){
 			$(this).addClass("err");
 			var ebos=0;
 			function validateEmail(email){var e=/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;return e.test(email);} /* " */
-			if(!validateEmail($(txtID+' input[name=email]').val())){ $(txtID+' input[name=email]').addClass("err"); ebos++;}
-			if(ebos != 0 ){ hata=hata+epostadegil;}
+			if(!validateEmail(domMail.val())){ domMail.addClass("err"); ebos++;}
+			if(ebos != 0 ){ hata=hata+errNotMail;}
 		}
 
 
 		// contract check
-		if($(txtID+' input[name=contract]').length > 0 ){
+		var domContract = $(txtID+' input[name=contract]');
+		if(domContract.length > 0 ){
 			var ebos=0;			
-			if(!$(txtID+' input[name=contract]').is(":checked") == true){$(txtID+' input[name=contract]').parent().addClass("err"); ebos++;}
+			if(!domContract.is(":checked") == true){domContract.parent().addClass("err"); ebos++;}
 			if(ebos != 0 ){ hata=hata+errContract;}
 		}
 
 
-		//pass1 ve pass2 doğruluk kontrolu
-		if($(txtID+' input[name=pass1]').length > 0 && $(txtID+' input[name=pass2]').length > 0){
+		//pass1 & pass2 validate
+		var domPass1 = $(txtID+' input[name=pass1]');
+		var domPass2 = $(txtID+' input[name=pass2]');
+		if(domPass1.length > 0 && domPass2.length > 0){
 			var ebos=0;
-			if(!$(txtID+' input[name=pass1]').val() == '' && !$(txtID+' input[name=pass2]').val() == '' && $(txtID+' input[name=pass1]').val() == $(txtID+' input[name=pass2]').val()){ebos++;}
-			if(ebos == 0 ){ hata=hata+errPass; $(txtID+' input[name=pass1]').addClass("err"); $(txtID+' input[name=pass2]').addClass("err");}
+			if(!domPass1.val() == '' && !domPass2.val() == '' && domPass1.val() == domPass2.val()){ebos++;}
+			if(ebos == 0 ){ hata=hata+errPass; domPass1.addClass("err"); domPass2.addClass("err");}
 		}
 
 
 
 
 
-		// HATA
+		// ERROR
 		if (hata){
-			domID.sauceNtfy({type:'error',text:hata});
+			domID.sauceNtfy({text:hata});
 		}
 		else {
 			domID.sauceNtfy({type:'hide'});
@@ -193,35 +197,3 @@ function dataPost(veri){
 		return false;
 };
 */
-
-
-
-
-//READY
-$(document).ready(function(){
-
-	$("#uyelikForm").sauceForm({method:'post'});
-	$("#girisForm").sauceForm({method:'post'});
-
-
-	/*
-		$("#form_iletisim button[type=submit]").click(function(e){e.preventDefault();validateForm('form_iletisim')}); 
-		$("#frmEbulten button[type=submit]").click(function(e){e.preventDefault();validateForm('frmEbulten')}); 
-		
-		$("form").each(function(index){
-			console.log(index);
-			console.log( $(this).attr("data-ia") );
-		});
-
-		$("#otelProfili button[type=submit]").click(function(e){e.preventDefault();validateForm('otelProfili')}); 		// Otel Profili
-		$("#iletisimForm button[type=submit]").click(function(e){e.preventDefault();validateForm('iletisimForm');}); 	// iletisim
-
-		$(".sorunBildir").click(function(){dataPost('form=sorunbildir&id='+$(this).attr("rel"))}); //Katalog Ekle Form
-
-		jQuery(function($){
-			$("input[name=tel]").mask("(999)-999-99-99");
-		});
-	*/
-	
-	
-});
