@@ -1,199 +1,260 @@
 $.fn.sauceForm=function(config){
-
-	// configs
-	var config=$.extend({
-		id: 	this[0].id, 				// Id'si
-		method: 'post',						// post/selfPage 	(default: post)
-		lang: 	'tr'						// lang 			(default: tr)
-	}, config);
-
-	var txtID="#"+config.id;
-	var domID=$(txtID);
-
-
-	// globals
-	domID.append('<input type="hidden" name="form" value="'+config.id+'" />');
-
-
-
-	// formPost
-	function formPost(id){ 
-
-		domID.sauceNtfy({type:'loading',text:'Form gönderiliyor... Lütfen bekleyiniz.'});
-		domID.find('button').hide();	// button hide
-
-		$.ajax({
-			type: 		'POST',
-			url: 		domID.attr("action"),
-			data: 		domID.serialize(),
-			beforeSend: function(){},
-			error: 		function(){domID.sauceNtfy({text:errSend});},
-			success: 	function(response){	response=response.split("|");
-				switch (response[0]){
-					case 'true': 	// true
-						if(response[1])	{
-							domID.sauceNtfy({type:'true',text:response[1]});
-							domID.hide(); 											// Form gönderildikten sonra form alanı siliniyor.
-						}
-						else		{ domID.sauceNtfy({type:'true',text:trueSend}); }
-						$('.'+id+' input, .'+id+' textarea, .'+id+' select').not("input[type=hidden]").val('');		// form başarılı gönderildikten sonra input,textarea,select alanlarını boşaltıyor.
-						break;
-					case 'false': 	// false
-						if(response[1])	{ domID.sauceNtfy({text:response[1]});}
-						break;
-					case 'refresh':	// refresh
-						var msj='Sayfa yönleniyor...';
-						if(response[2]){ msj=response[2];}									// refresh yaparken php den gelen mesaj varsa
-						if(response[1]){ window.location=response[1];}							// refresh yaparken php den gelen adres varsa
-						else {
-							domID.sauceNtfy({type:'true',text:msj});
-							domID.hide(); 											// Form gönderildikten sonra form alanı siliniyor.
-							location.reload();
-						}
-						break;
-					default:
-						domID.sauceNtfy({text:response});
+	var errNull,errNotName,errNotMail,trueSend,errSend,errContract,errPass,errRadio;
+	
+		// configs
+		var config=$.extend({
+			id: 		this[0].id, 				// Id'si
+			method: 	'post',						// post/selfPage 	(default: post)
+			//lang: 		'tr',						// lang 			(default: tr)
+			afteract:	'clear',					// clear/hide
+			url:		$('meta[name=web-url]').attr("content"),
+			alertpos: 	''							// Alert Position 	(default: NULL)
+		}, config);
+	
+		var txtID="#"+config.id;
+		var domID=$(txtID);
+		var alertPosition = (config.alertpos != '') ? $('#'+config.alertpos) : domID;
+	
+	
+		// globals
+		domID.append('<input type="hidden" name="form" value="'+config.id+'" />');
+	
+	
+		// formPost
+		function formPost(id){ 
+	
+			alertPosition.sauceNtfy({type:'loading',text:'Form gönderiliyor... Lütfen bekleyiniz.'});
+			domID.find('button').hide();	// button hide
+	
+			// Change data before send
+			//console.log(domID.serialize());
+	
+			$.ajax({
+				type: 		'POST',
+				//url: 		$('meta[name=web-url]').attr("content")+domID.attr("action"),
+				url: 		domID.attr("action"),
+				data: 		domID.serialize()+ "&_token="+$('meta[name=token]').attr("content"),		//serializeArray()
+				beforeSend: function(){},
+				error: 		function(res){
+					var response = res.responseJSON
+					//console.log(response);
+					if(response.message && response.message != "")	{ errSend = response.message; }
+					alertPosition.sauceNtfy({type:'error',text:errSend});
+					domID.find('button').show();
+				},
+				success: 	function(response){	
+					switch (response.status){
+						case true: 	// true
+							if(response.message && response.message != "")	{
+								trueSend = response.message;
+							}
+							alertPosition.sauceNtfy({type:'true',text:trueSend});
+													
+	
+							if(config.afteract == 'clear'){
+								$('#'+config.id+' input, #'+config.id+' textarea, #'+config.id+' select').not("input[type=hidden]").val('');		// form başarılı gönderildikten sonra input,textarea,select alanlarını boşaltıyor.
+							}
+							else if(config.afteract == 'hide'){
+								domID.hide();					// Form gönderildikten sonra form alanı siliniyor.
+							}
+	
+							break;
+						case false: 	// false
+							if(response.message && response.message != "")	{
+								errSend = response.message;
+							}
+							alertPosition.sauceNtfy({type:'error',text:errSend});
+							domID.find('button').show();
+							break;
+						case 'refresh':	// refresh
+							var msg='Sayfa yönleniyor...';
+							if(response.message){ msg=response.message;}							// refresh yaparken php den gelen mesaj varsa
+							if(response.url){ 
+								window.location=response.url;
+								alertPosition.sauceNtfy({type:'loading',text:msg});
+							}				// refresh yaparken php den gelen adres varsa
+							else {
+								alertPosition.sauceNtfy({type:'loading',text:msg});
+								domID.hide(); 											// Form gönderildikten sonra form alanı siliniyor.
+								location.reload();
+							}
+							break;
+						default:
+							alertPosition.sauceNtfy({text:response});
+					}
+					
+					domID.find('button').show(); // button show
 				}
-				
-				domID.find('button').show(); // button show
-			}
-		});
-		return false;
-
-	};
-
-
-
-
-	// validateForm
-	function validateForm(formCls,method){
-		$('*').removeClass("err");
-		var hata='';
-
-		// lang 
-		if( config.lang !== 'tr' ){
-				var errNull 		= '- Please Fill in all fields.<br>';
-				var errNotMail		= '- Please Enter a valid email address.<br>';
-				var trueSend		= '- Form has been sent successfully.<br />Thank you...';
-				var errSend			= '- ';
-				var errContract		= '- <br>';
-				var errPass			= '- Şifre ve şifre tekrarı alanları aynı olmalıdır.<br>';
-		}
-		else {
-				var errNull 		= '- Lütfen tüm alanları doldurunuz.<br>';
-				var errNotMail		= '- Lütfen geçerli bir E-Mail adresi yazınız.<br>';
-				var trueSend		= '- Form başarıyla gönderilmiştir.<br />Teşekkür ederiz...';
-				var errSend			= '- Form gönderilemedi.<br> Lütfen daha sonra tekrar deneyin...';
-				var errContract		= '- Lütfen sözleşmeyi okuyup, onaylayınız.<br>';
-				var errPass			= '- Şifre ve şifre tekrarı alanları aynı olmalıdır.<br>';
-		}
-
-
-		/* VALIDATIONS */
-
-		// empty area control
-		var zbos=0;
-		$(txtID+' .must').each(function(){if (!$(this).val()){$(this).addClass("err"); zbos++;}}); 
-		if(zbos != 0 ){hata=hata+errNull;}
-
-
-		// email check
-		var domMail = $(txtID+' input[name=email]');
-		if(domMail.length > 0 ){
-			$(this).addClass("err");
-			var ebos=0;
-			function validateEmail(email){var e=/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;return e.test(email);} /* " */
-			if(!validateEmail(domMail.val())){ domMail.addClass("err"); ebos++;}
-			if(ebos != 0 ){ hata=hata+errNotMail;}
-		}
-
-
-		// contract check
-		var domContract = $(txtID+' input[name=contract]');
-		if(domContract.length > 0 ){
-			var ebos=0;			
-			if(!domContract.is(":checked") == true){domContract.parent().addClass("err"); ebos++;}
-			if(ebos != 0 ){ hata=hata+errContract;}
-		}
-
-
-		//pass1 & pass2 validate
-		var domPass1 = $(txtID+' input[name=pass1]');
-		var domPass2 = $(txtID+' input[name=pass2]');
-		if(domPass1.length > 0 && domPass2.length > 0){
-			var ebos=0;
-			if(!domPass1.val() == '' && !domPass2.val() == '' && domPass1.val() == domPass2.val()){ebos++;}
-			if(ebos == 0 ){ hata=hata+errPass; domPass1.addClass("err"); domPass2.addClass("err");}
-		}
-
-
-
-
-
-		// ERROR
-		if (hata){
-			domID.sauceNtfy({text:hata});
-		}
-		else {
-			domID.sauceNtfy({type:'hide'});
-
-			if(method == 'selfPage'){
-				domID.submit();
+			});
+			return false;
+	
+		};
+	
+	
+	
+	
+		// validateForm
+		function validateForm(formCls,method){
+			$('*').removeClass("err");
+			var hata='';
+	
+			// lang 
+			if( $(txtID+' input[name=lang]').val() == 'en' ){
+					trueSend		= 'The form has been sent successfully.<br />Thank you...';
+					errSend			= 'The form could not be sent.<br>Please try again later.';	
+					errNull 		= '- Please Fill in all fields.<br>';
+					errRadio		= '- Please select one of the options.<br>';
+					errNotName 		= '- Please enter a valid name.<br>';
+					errNotMail		= '- Please enter a valid email.<br>';
+					errContract		= '- Please read and agree to the contract.<br>';
+					errPass			= '- Password and password recovery fields must be the same.<br>';
 			}
 			else {
-				formPost(formCls);
-				if($(txtID+' input[name=captcha]').length > 0 ){
-					//captchaYenile();
-				} // hata çıktığında captcha yenileniyor.
+					trueSend		= 'Form başarıyla gönderilmiştir.<br>Teşekkür ederiz...';
+					errSend			= 'Form gönderilemedi.<br> Lütfen daha sonra tekrar deneyin...';
+					errNull 		= '- Lütfen tüm alanları doldurunuz.<br>';
+					errRadio		= '- Lütfen şıklardan birini seçiniz.<br>';
+					errNotName 		= '- Lütfen doğru bir isim giriniz.<br>';
+					errNotMail		= '- Lütfen geçerli bir E-Mail adresi yazınız.<br>';
+					errContract		= '- Lütfen sözleşmeyi okuyup, onaylayınız.<br>';
+					errPass			= '- Şifre ve şifre tekrarı alanları aynı olmalıdır.<br>';
 			}
+	
+	
+			/* VALIDATIONS */
+	
+			// empty area control
+			var zbos=0;
+			$(txtID+' .must').not(":hidden").each(function(){if (!$(this).val()){$(this).addClass("err"); zbos++;}}); 
+			if(zbos != 0 ){hata=hata+errNull;}
+			// + yerine concat() ekle
+	
+	
+			// fullname
+			/*
+			var domFname = $(txtID+' input[name=fullname]');
+			if(domFname.length > 0){
+	
+				//if(domFname.split(' ').length == 2 && domFname.split(' ')[0].length < 2 ){domFname.addClass("err"); hata=hata+errNotName;}
+				//if(domFname.split(' ').length < 2 ){domFname.addClass("err"); hata=hata+errName;}
+				
+			}*/
+	
+	
+			// email check
+			var domMail = $(txtID+' input[name=email]');
+			if(domMail.length > 0 ){
+				$(this).addClass("err");
+				var ebos=0;
+				function validateEmail(email){var e=/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;return e.test(email);} /* " */
+				if(!validateEmail(domMail.val())){ domMail.addClass("err"); ebos++;}
+				if(ebos != 0 ){ hata=hata+errNotMail;}
+			}
+	
+	
+			// contract check
+			var domContract = $(txtID+' input[name^="contract_"]');
+			if(domContract.length > 0 ){
+				var ebos=0;
+				
+				domContract.each(function(){ 
+					if(!$(this).is(":checked") == true){$(this).parent().addClass("err"); ebos++;}
+				})
+				
+				if(ebos != 0 ){ hata=hata+errContract;}
+			}
+	
+	
+			// pass1 & pass2 validate
+			var domPass1 = $(txtID+' input[name=pass1]');
+			var domPass2 = $(txtID+' input[name=pass2]');
+			if(domPass1.length > 0 && domPass2.length > 0){
+				var ebos=0;
+				if(!domPass1.val() == '' && !domPass2.val() == '' && domPass1.val() == domPass2.val()){ebos++;}
+				if(ebos == 0 ){ hata=hata+errPass; domPass1.addClass("err"); domPass2.addClass("err");}
+			}
+	
+	
+			// multi-radio
+			var zbos=0;
+			$(txtID+' .multi-radio').each(function(){
+				var thisArea = $(this);
+	
+				if (!thisArea.find('input[type=radio]').is(":checked") ){
+					console.log('a.b');
+					thisArea.addClass("err"); zbos++;
+				}
+			}); 
+			if(zbos != 0 ){hata=hata+errRadio;}
+	
+	
+			// parent Tab ID
+	
+	
+			// ERROR
+			if (hata){
+				alertPosition.sauceNtfy({text:hata});
+			}
+			else {
+				alertPosition.sauceNtfy({type:'hide'});
+	
+				if(method == 'selfPage'){
+					domID.submit();
+				}
+				else {
+					formPost(formCls);
+					if($(txtID+' input[name=captcha]').length > 0 ){
+						//captchaYenile();
+					} // hata çıktığında captcha yenileniyor.
+				}
+			}
+	
 		}
-
-	}
-
-
-
-	// startForm
-	$(txtID+" button[type=submit]").click(function(e){
-		e.preventDefault();
-		validateForm(config.id,config.method);
-
-		$("html,body").animate({scrollTop:0},1000);
-	});
-
-
-}
-
-
-
-
-
-/* captcha
-function captchaYenile(){
-	tarih=new Date();
-	document.getElementById('captcha_img').src=url_site + 'captcha.php?t=' + tarih.getTime();
-	document.getElementById('captcha').value='';
-}
-*/
-
-
-
-
-
-
-
-
-/* dataPost
-function dataPost(veri){
-		$.ajax({
-			type: 'POST',
-			url: 'ajax.php',
-			data: veri,
-			success: function(cvp){
-				cvp=cvp.split("|");
-				if (cvp[0] == 'yenile'){location.reload();}
-				else if (cvp[0] == 'ajaxTggl'){}
-			}
+	
+	
+	
+		// startForm
+		$(txtID+" button[type=submit]").click(function(e){
+			e.preventDefault();
+			validateForm(config.id,config.method);
+	
+			$("html,body").animate({scrollTop:($(txtID).offset().top-30)},1000);
 		});
-		return false;
-};
-*/
+	
+	
+	}
+	
+	
+	
+	
+	
+	/* captcha
+	function captchaYenile(){
+		tarih=new Date();
+		document.getElementById('captcha_img').src=url_site + 'captcha.php?t=' + tarih.getTime();
+		document.getElementById('captcha').value='';
+	}
+	*/
+	
+	
+	
+	
+	
+	
+	
+	
+	/* dataPost
+	function dataPost(veri){
+			$.ajax({
+				type: 'POST',
+				url: 'ajax.php',
+				data: veri,
+				success: function(cvp){
+					cvp=cvp.split("|");
+					if (cvp[0] == 'yenile'){location.reload();}
+					else if (cvp[0] == 'ajaxTggl'){}
+				}
+			});
+			return false;
+	};
+	*/
