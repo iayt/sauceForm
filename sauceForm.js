@@ -97,12 +97,13 @@ $.fn.sauceForm=function(config){
 		function validateForm(formCls,method){
 			$('*').removeClass("err");
 			var hata='';
-	
+			
+			
 			// lang 
 			if( $(txtID+' input[name=lang]').val() == 'en' ){
 					trueSend		= 'The form has been sent successfully.<br />Thank you...';
 					errSend			= 'The form could not be sent.<br>Please try again later.';	
-					errNull 		= '- Please Fill in all fields.<br>';
+					errNull 		= 'Please Fill in all fields.<br>';
 					errRadio		= '- Please select one of the options.<br>';
 					errNotName 		= '- Please enter a valid name.<br>';
 					errNotMail		= '- Please enter a valid email.<br>';
@@ -124,11 +125,27 @@ $.fn.sauceForm=function(config){
 			/* VALIDATIONS */
 	
 			// empty area control
+			/*
 			var zbos=0;
 			$(txtID+' .must').not(":hidden").each(function(){if (!$(this).val()){$(this).addClass("err"); zbos++;}}); 
-			if(zbos != 0 ){hata=hata+errNull;}
-			// + yerine concat() ekle
-	
+			if( ){hata=hata+errNull;}
+			*/
+			
+			function emptyAreas(){
+				let itemEmpaty = false;
+				$(txtID+' .must').not(":hidden").each(function(){
+					if (!$(this).val()){
+						$(this).addClass("err");
+						itemEmpaty = true; 
+				}
+				});
+				
+				return itemEmpaty;
+			}
+
+
+			if( emptyAreas()){hata=hata+errNull;}
+
 	
 			// fullname
 			/*
