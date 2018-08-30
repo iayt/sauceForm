@@ -96,41 +96,29 @@ $.fn.sauceForm=function(config){
 		// validateForm
 		function validateForm(formCls,method){
 			$('*').removeClass("err");
-			var hata='';
+			let hata=[];
 			
+
+			const errMessages = [
+				{name:"trueSend", 	tr:"Form başarıyla gönderilmiştir.<br>Teşekkür ederiz...", en:"The form has been sent successfully.<br />Thank you..."},
+				{name:"errSend", 	tr:"Form gönderilemedi.<br> Lütfen daha sonra tekrar deneyin...", en:"The form could not be sent.<br>Please try again later."},
+				{name:"errNull", 	tr:"Lütfen tüm alanları doldurunuz.", en:"Please Fill in all fields."},
+				{name:"errRadio", 	tr:"Lütfen şıklardan birini seçiniz.", en:"Please select one of the options."},
+				{name:"errNotName", tr:"Lütfen doğru bir isim giriniz.", en:"Please enter a valid name."},
+				{name:"errNotMail", tr:"Lütfen geçerli bir E-Mail adresi yazınız.", en:"Please enter a valid email."},
+				{name:"errContract",tr:"Lütfen sözleşmeyi okuyup, onaylayınız.", en:"Please read and agree to the contract."},
+				{name:"errPass", 	tr:"Şifre ve şifre tekrarı alanları aynı olmalıdır.", en:"Password and password recovery fields must be the same."}
+			]
+
+			function getError(name,lang='tr'){
+				return errMessages.filter(message => message.name == name)[0][lang];
+			}
 			
-			// lang 
-			if( $(txtID+' input[name=lang]').val() == 'en' ){
-					trueSend		= 'The form has been sent successfully.<br />Thank you...';
-					errSend			= 'The form could not be sent.<br>Please try again later.';	
-					errNull 		= 'Please Fill in all fields.<br>';
-					errRadio		= '- Please select one of the options.<br>';
-					errNotName 		= '- Please enter a valid name.<br>';
-					errNotMail		= '- Please enter a valid email.<br>';
-					errContract		= '- Please read and agree to the contract.<br>';
-					errPass			= '- Password and password recovery fields must be the same.<br>';
-			}
-			else {
-					trueSend		= 'Form başarıyla gönderilmiştir.<br>Teşekkür ederiz...';
-					errSend			= 'Form gönderilemedi.<br> Lütfen daha sonra tekrar deneyin...';
-					errNull 		= '- Lütfen tüm alanları doldurunuz.<br>';
-					errRadio		= '- Lütfen şıklardan birini seçiniz.<br>';
-					errNotName 		= '- Lütfen doğru bir isim giriniz.<br>';
-					errNotMail		= '- Lütfen geçerli bir E-Mail adresi yazınız.<br>';
-					errContract		= '- Lütfen sözleşmeyi okuyup, onaylayınız.<br>';
-					errPass			= '- Şifre ve şifre tekrarı alanları aynı olmalıdır.<br>';
-			}
-	
+
 	
 			/* VALIDATIONS */
 	
 			// empty area control
-			/*
-			var zbos=0;
-			$(txtID+' .must').not(":hidden").each(function(){if (!$(this).val()){$(this).addClass("err"); zbos++;}}); 
-			if( ){hata=hata+errNull;}
-			*/
-			
 			function emptyAreas(){
 				let itemEmpaty = false;
 				$(txtID+' .must').not(":hidden").each(function(){
@@ -144,8 +132,10 @@ $.fn.sauceForm=function(config){
 			}
 
 
-			if( emptyAreas()){hata=hata+errNull;}
-
+			if( emptyAreas()){
+				hata.push(getError('errNull'));
+			}
+			console.log(hata);
 	
 			// fullname
 			/*
@@ -165,7 +155,9 @@ $.fn.sauceForm=function(config){
 				var ebos=0;
 				function validateEmail(email){var e=/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;return e.test(email);} /* " */
 				if(!validateEmail(domMail.val())){ domMail.addClass("err"); ebos++;}
-				if(ebos != 0 ){ hata=hata+errNotMail;}
+				if(ebos != 0 ){
+					hata.push(getError('errNotMail'));
+				}
 			}
 	
 	
@@ -178,7 +170,9 @@ $.fn.sauceForm=function(config){
 					if(!$(this).is(":checked") == true){$(this).parent().addClass("err"); ebos++;}
 				})
 				
-				if(ebos != 0 ){ hata=hata+errContract;}
+				if(ebos != 0 ){
+					hata.push(getError('errContract'));
+				}
 			}
 	
 	
@@ -188,7 +182,12 @@ $.fn.sauceForm=function(config){
 			if(domPass1.length > 0 && domPass2.length > 0){
 				var ebos=0;
 				if(!domPass1.val() == '' && !domPass2.val() == '' && domPass1.val() == domPass2.val()){ebos++;}
-				if(ebos == 0 ){ hata=hata+errPass; domPass1.addClass("err"); domPass2.addClass("err");}
+				if(ebos == 0 ){ 
+					domPass1.addClass("err");
+					domPass2.addClass("err");
+
+					hata.push(getError('errPass'));
+				}
 			}
 	
 	
@@ -202,22 +201,26 @@ $.fn.sauceForm=function(config){
 					thisArea.addClass("err"); zbos++;
 				}
 			}); 
-			if(zbos != 0 ){hata=hata+errRadio;}
+			if(zbos != 0 ){
+				hata.push(getError('errRadio'));
+			}
 	
 	
 			// parent Tab ID
 	
 	
 			// ERROR
-			if (hata){
-				alertPosition.sauceNtfy({text:hata});
+			if (hata.length > 0){
+				let lastHata = '';
+				hata.forEach((element,index) => {lastHata += '- '+element+'<br>';});
+				alertPosition.sauceNtfy({text:lastHata});
 			}
 			else {
 				alertPosition.sauceNtfy({type:'hide'});
 	
 				if(method == 'selfPage'){
 					domID.submit();
-				}
+				} 
 				else {
 					formPost(formCls);
 					if($(txtID+' input[name=captcha]').length > 0 ){
