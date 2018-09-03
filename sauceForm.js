@@ -20,11 +20,18 @@
 		domID.insertAdjacentHTML('beforeend', '<input type="hidden" name="form" value="'+config.id+'">');
 		
 
+		// to select form elements with filter
+		function formItems(filter){
+			return document.querySelectorAll(txtID+filter);
+		}
 
 
 		// VALIDATE
 		function validateForm(formCls,method){
-			// >> $('*').removeClass("err");
+			
+			formItems(' input:not([type=hidden])').forEach(function(e){ e.classList.remove('err'); }); // remove all .err
+
+
 			let hata=[];
 
 			const errMessages = [
@@ -38,34 +45,43 @@
 				{name:"errPass", 	tr:"Şifre ve şifre tekrarı alanları aynı olmalıdır.", 				en:"Password and password recovery fields must be the same."}
 			]
 
-			function getError(name,lang='tr'){
+
+			function getError(name){
 				return errMessages.filter(message => message.name == name)[0][config.lang];
 			}
 
 
-			// to select form elements with filter
-			function formItems(filter){
-				return document.querySelectorAll(txtID+filter);
-			}
 			
 			
 			// empty area control
-			for (let item of formItems(' .must:not([type=hidden])')) {
-				if (!item.value) {
-					hata.push(getError('errNull'));
-					break;
+			var itemEmpty = [];
+			function emptyAreas(){
+				formItems(' .must:not([type=hidden])').forEach(function(e){
+					if(!e.value){
+						e.classList.add('err');
+						itemEmpty.push("false");
+					}
+				});
+				return itemEmpty;
+			}
+
+			if(emptyAreas()){
+				for (let item of itemEmpty) {
+					if (!item.value) {
+						hata.push(getError('errNull'));
+						break;
+					}
 				}
 			}
-			
 
+
+		
 			// email check
-			var domMail = $(txtID+' input[name=email]');
-			if(domMail.length > 0 ){
-				$(this).addClass("err");
-				var ebos=0;
+			const domMail = formItems('  input[name=email]');
+			if(domMail){
 				function validateEmail(email){var e=/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;return e.test(email);} /* " */
-				if(!validateEmail(domMail.val())){ domMail.addClass("err"); ebos++;}
-				if(ebos != 0 ){
+				if(!validateEmail(domMail[0].value)){ 
+					domMail[0].classList.add('err'); 
 					hata.push(getError('errNotMail'));
 				}
 			}
