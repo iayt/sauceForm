@@ -3,21 +3,23 @@
 	this.sauceForm1 = function(arg) {
 
 		const config = {
-			id: 		arg.id, 														// Id'si
-			method: 	(!arg.method) 		? 'post' 	: arg.method,					// post/selfPage 	(default: post)
-			lang: 		(!arg.lang) 		? 'tr' 		: arg.lang,						// lang 			(default: tr)
-			afteract:	(!arg.afteract) 	? 'clear'	: arg.afteract,					// clear/hide
-			alertpos: 	(!arg.alertpos) 	? arg.id 	: arg.alertpos,					// Alert Position 	(default: NULL)
-			url:		document.querySelector('meta[name=web-url]').content
+			id:				arg.id, 																		// id
+			method: 	(!arg.method)		? 'post' 	: arg.method,			// post/selfPage	(default: post)
+			lang: 		(!arg.lang) 		? 'tr' 		: arg.lang,				// lang 					(default: tr)
+			afteract:	(!arg.afteract)	? 'clear'	: arg.afteract,		// clear/hide
+			alertpos:	(!arg.alertpos)	? arg.id 	: arg.alertpos,		// Alert Position	(default: NULL)
+			url:			document.querySelector('meta[name=web-url]').content
 		};
+
+
+
 
 		const txtID = '#'+config.id;
 		const domID = document.querySelector(txtID);
 		//const alertPosition = (config.alertpos != '') ? document.querySelector('#'+config.alertpos) : domID;
 		const alertPosition = $('#'+ config.alertpos);
 		
-		// globals
-		domID.insertAdjacentHTML('beforeend', '<input type="hidden" name="form" value="'+config.id+'">');
+		domID.insertAdjacentHTML('beforeend', '<input type="hidden" name="form" value="'+config.id+'">'); // added formname element in form
 		
 
 		// to select form elements with filter
@@ -26,10 +28,12 @@
 		}
 
 
+
+
 		// VALIDATE
 		function validateForm(formCls,method){
 			
-			formItems(' input:not([type=hidden])').forEach(function(e){ e.classList.remove('err'); }); // remove all .err
+			formItems(' .err:not([type=hidden])').forEach(function(e){ e.classList.remove('err'); }); // remove all .err
 
 
 			let hata=[];
@@ -77,7 +81,7 @@
 
 		
 			// email check
-			const domMail = formItems('  input[name=email]');
+			const domMail = formItems(' input[name=email]');
 			if(domMail){
 				function validateEmail(email){var e=/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;return e.test(email);} /* " */
 				if(!validateEmail(domMail[0].value)){ 
@@ -88,29 +92,34 @@
 	
 	
 			// contract check
-			var domContract = $(txtID+' input[name^="contract_"]');
-			if(domContract.length > 0 ){
-				var ebos=0;
+			const domContract = formItems(' input[name^="contract_"]');
+			if(domContract){
+				let checkElement = false;
 				
-				domContract.each(function(){ 
-					if(!$(this).is(":checked") == true){$(this).parent().addClass("err"); ebos++;}
+				domContract.forEach(function(e){
+					if(e.checked != true){
+						e.parentNode.classList.add('err');
+						checkElement = true;
+					}
 				})
-				
-				if(ebos != 0 ){
+
+				if(checkElement){
 					hata.push(getError('errContract'));
 				}
 			}
 	
 	
 			// pass1 & pass2 validate
-			var domPass1 = $(txtID+' input[name=pass1]');
-			var domPass2 = $(txtID+' input[name=pass2]');
-			if(domPass1.length > 0 && domPass2.length > 0){
-				var ebos=0;
-				if(!domPass1.val() == '' && !domPass2.val() == '' && domPass1.val() == domPass2.val()){ebos++;}
-				if(ebos == 0 ){ 
-					domPass1.addClass("err");
-					domPass2.addClass("err");
+			const domPass1 = formItems('  input[name=pass1]');
+			const domPass2 = formItems('  input[name=pass2]');
+			if(domPass1 && domPass2){
+				let checkElement = false;
+				if(!domPass1.value == '' && !domPass2.value == '' && domPass1.value == domPass2.value){
+					checkElement = true;
+				}
+				if(checkElement){ 
+					domPass1[0].classList.add('err');
+					domPass2[0].classList.add('err');
 
 					hata.push(getError('errPass'));
 				}
@@ -118,18 +127,17 @@
 	
 	
 			// multi-radio
-			var zbos=0;
-			$(txtID+' .multi-radio').each(function(){
-				var thisArea = $(this);
-	
-				if (!thisArea.find('input[type=radio]').is(":checked") ){
-					console.log('a.b');
-					thisArea.addClass("err"); zbos++;
+			const domMultiRadio = formItems(' .multi-radio');
+			domMultiRadio.forEach(function(e){
+				if (e.querySelectorAll('input[type=radio]:checked').length < 1){	
+					e.classList.add('err');
+					hata.push(getError('errRadio'));
 				}
-			}); 
-			if(zbos != 0 ){
-				hata.push(getError('errRadio'));
-			}
+			});
+
+
+			// captcha
+			// const domCaptcha = formItems(' input[name=captcha]');
 
 
 
@@ -147,9 +155,11 @@
 				} 
 				else {
 					formPost(formCls);
-					if($(txtID+' input[name=captcha]').length > 0 ){
-						//captchaYenile();
-					} // hata çıktığında captcha yenileniyor.
+/*
+					if(domCaptcha.length > 0 ){
+						captchaYenile();
+					}
+*/
 				}
 			}
 

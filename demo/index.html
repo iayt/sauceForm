@@ -16,7 +16,7 @@
 		<div class="uyelikFormu">
 			<h1>Üyelik Formu</h1>
 			<div class="formArea">
-				<form id="uyelikForm" method="post" action="ajax.php" enctype="multipart/form-data">
+				<form id="signupForm" method="post" action="ajax.php" enctype="multipart/form-data">
 
 					<div><span><b>*</b> Adı </span>: 			<input type="text" name="ad" class="must"></div>
 					<div><span><b>*</b> Soyadı </span>: 		<input type="text" name="soyad" class="must"></div>
@@ -33,11 +33,30 @@
 					<div><span><b>*</b> Şifre Tekrarı </span>: 	<input type="password" name="pass2" class="must"></div>
 					<br>
 
-					<div><span><b>*</b> Cinsiyet </span>: 		
-																<label for="g1"><input type="radio" name="gender" value="man" id="g1"> Erkek</label>
-																<label for="g2"><input type="radio" name="gender" value="woman" id="g2"> Bayan</label>
+					<div class="multi-radio">
+						<span><b>*</b> Cinsiyet </span> 
+						<span>	:
+							<label for="g1"><input type="radio" name="gender" value="man" id="g1"> Erkek</label>
+							<label for="g2"><input type="radio" name="gender" value="woman" id="g2"> Bayan</label>
+						</span>
 					</div>
-					<br>	
+					<br>
+
+					<div class="multi-radio">
+						<span><b>*</b> deneme </span> 
+						<span>	:
+							<label for="g1"><input type="radio" name="deneme1" value="den" id="g1"> Deneme1 </label>
+							<label for="g2"><input type="radio" name="deneme1" value="den" id="g2"> Deneme2 </label>
+						</span>
+					</div>
+					<br>
+
+					<div>
+						<span><b>*</b> Tercih </span>:
+								<label for="a1"><input type="radio" name="tercih" value="add" id="a1"> Adres Ekle</label> 
+								<label for="a2"><input type="radio" name="tercih" value="after" id="a2"> Adresi Sonra Ekle</label>
+					</div>
+					<br>		
 
 					<div><span><b>*</b> Adres </span>: 			<textarea name="adres" class="must"></textarea></div>
 					<div><span><b>*</b> İl </span>: 			<select id="il" name="il" class="must">
@@ -50,7 +69,7 @@
 																</select>
 					</div><br>
 
-					<div><span><b>*</b>  </span><label><input type="checkbox" name="contract" class="must"></i> Lütfen <a href="http://">sözleşmeyi</a> okuyarak onaylayınız.</label></div>
+					<div><span><b>*</b>  </span><label><input type="checkbox" name="contract_singup" class="must"></i> Lütfen <a href="http://">sözleşmeyi</a> okuyarak onaylayınız.</label></div>
 					
 					<div><button type="submit">GÖNDER</button></div>
 									
@@ -91,8 +110,8 @@
 	<script type="text/javascript">
 		$(document).ready(function(){
 
-			var girisForm = new sauceForm1({
-				id: 'girisForm',
+			var signupForm = new sauceForm1({
+				id: 'signupForm',
 				method:'post'
 			});
 
