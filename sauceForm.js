@@ -2,6 +2,7 @@
 	
 	this.sauceForm1 = function(arg) {
 
+
 		const config = {
 			id:				arg.id, 																		// id
 			method: 	(!arg.method)		? 'post' 	: arg.method,			// post/selfPage	(default: post)
@@ -17,7 +18,7 @@
 		const txtID = '#'+config.id;
 		const domID = document.querySelector(txtID);
 		//const alertPosition = (config.alertpos != '') ? document.querySelector('#'+config.alertpos) : domID;
-		const alertPosition = $('#'+ config.alertpos);
+		//const alertPosition = $('#'+ config.alertpos);
 		
 		domID.insertAdjacentHTML('beforeend', '<input type="hidden" name="form" value="'+config.id+'">'); // added formname element in form
 		
@@ -55,8 +56,8 @@
 			}
 
 
-			
-			
+
+
 			// empty area control
 			var itemEmpty = [];
 			function emptyAreas(){
@@ -79,7 +80,6 @@
 			}
 
 
-		
 			// email check
 			const domMail = formItems(' input[name=email]');
 			if(domMail){
@@ -89,8 +89,8 @@
 					hata.push(getError('errNotMail'));
 				}
 			}
-	
-	
+
+
 			// contract check
 			const domContract = formItems(' input[name^="contract_"]');
 			if(domContract){
@@ -107,8 +107,8 @@
 					hata.push(getError('errContract'));
 				}
 			}
-	
-	
+
+
 			// pass1 & pass2 validate
 			const domPass1 = formItems('  input[name=pass1]');
 			const domPass2 = formItems('  input[name=pass2]');
@@ -124,8 +124,8 @@
 					hata.push(getError('errPass'));
 				}
 			}
-	
-	
+
+
 			// multi-radio
 			const domMultiRadio = formItems(' .multi-radio');
 			domMultiRadio.forEach(function(e){
@@ -141,14 +141,18 @@
 
 
 
+
 			// ERROR
 			if (hata.length > 0){
 				let lastHata = '';
 				hata.forEach((element,index) => {lastHata += '- '+element+'<br>';});
-				alertPosition.sauceNtfy({text:lastHata});
+
+				new sauceNtfy({id:config.id, text:lastHata});
+
 			}
 			else {
-				alertPosition.sauceNtfy({type:'hide'});
+
+				new sauceNtfy({id:config.id, type:'hide'});
 	
 				if(method == 'selfPage'){
 					domID.submit();
@@ -161,12 +165,11 @@
 					}
 */
 				}
+
 			}
 
+
 		}
-
-		
-
 
 
 
@@ -177,9 +180,11 @@
 
 			validateForm(config.id,config.method);
 
-			$("html,body").animate({scrollTop:($(txtID).offset().top-30)},1000);
+			//$("html,body").animate({scrollTop:($(txtID).offset().top-30)},1000);
+			
 		});
-		
+
+
 	}
 
 }());
